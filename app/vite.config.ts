@@ -8,16 +8,6 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-  {
-    name: "health-route",
-    configureServer(server) {
-      server.middlewares.use("/health", (_req, res) => {
-        res.setHeader("Content-type", "application/json");
-        res.statusCode = 200;
-        res.end(JSON.stringify({ status: "ok" }));
-      });
-    },
-  }
   ],
   resolve: {
     alias: {
