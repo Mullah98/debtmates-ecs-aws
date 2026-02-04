@@ -1,0 +1,10 @@
+services:
+  web:
+    build:
+      context: .
+      args:
+        - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+        - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+    image: debtmates:latest
+    ports:
+      - "3000:3000"

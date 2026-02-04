@@ -1,0 +1,9 @@
+node_modules
+.dockerignore
+.gitignore
+README.md
+test.accounts.txt
+.git
+.dist
+*.log
+.env
