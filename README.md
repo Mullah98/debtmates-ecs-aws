@@ -6,3 +6,40 @@
 
 - issue with env variables. Created docker compose and put in values
 - same issue, instead of passing the vars during runetime, it needs them at build time. 
+
+screenshots:
+    - shows dockerfile
+    - shows healthroute status ok
+    - 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---
+
+# Directory structure
+```
+/
+├── app/
+│   ├── Dockerfile
+│   ├── .dockerignore
+│   ├── docker-compose.yaml
+│   ├── terraform.tfvars
+│   └── app source code...
+├── .gitignore
+└── README.md
+```
