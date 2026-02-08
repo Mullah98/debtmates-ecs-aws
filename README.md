@@ -15,19 +15,7 @@ screenshots:
 2. Clickops
 - issue when running a new task. Added variables to secret manager and policy to IAM user to be able to read variables but still not working. Realised I ran docker build instead of docker compose when pushing it to ECR
 
-- issue when testing it locally. task/service security group had tcp 80 but needs tcp 3000 attached to the alb. Once fixed it worked. Also needed to add 2 cname records in cloudflare.
-
-
-- 503 error.
-
-
-# 📝 What Went Wrong (for your notes)
-
-You can basically write this:
-
-### **Problem**
-
-The ECS task was registered to the target group but remained **unhealthy (“request timed out”)**.
+- The ECS task was registered to the target group but remained **unhealthy (“request timed out”)**.
 
 ### **Root causes**
 
@@ -69,9 +57,6 @@ Once that was done:
 * The target in the target group turned **Healthy**
 * The ALB could successfully route traffic to ECS.
 
----
-
-# 🔐 HTTPS (for your notes)
 
 You then:
 
@@ -89,6 +74,9 @@ Result:
 * HTTPS works
 * HTTP automatically redirects to HTTPS.
 
+
+---
+## Terraform
 
 1) Region + naming
 AWS region: eu-west-2
@@ -136,6 +124,19 @@ In Terraform you’ll likely reference it via a data "aws_acm_certificate" looku
 Decide what Terraform will manage:
 Route 53 record you created: debtmates.ibrahimdevops.co.uk A Alias → ALB
 Hosted zone ID in Route 53 (if you plan to manage it)
+
+
+Issues/Problems:
+
+
+
+
+
+
+
+
+
+
 
 ---
 
