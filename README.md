@@ -125,6 +125,16 @@ Decide what Terraform will manage:
 Route 53 record you created: debtmates.ibrahimdevops.co.uk A Alias → ALB
 Hosted zone ID in Route 53 (if you plan to manage it)
 
+---
+
+VPC - cidr block 10.0.0.0/16
+public sub - cidr block 10.0.0.0/24 - eu-west-2a
+public sub 2 - cidr block 10.0.3.0/24 - eu-west-2b
+private sub - cidr block 10.0.1.0/24 - eu-west-2a
+private sub 2 - cidr block 10.0.2.0/24 - eu-west-2b
+Route table 1 - 10.0.0.0/16 local - 0.0.0.0/0 igw
+Route table 2 - 10.0.0.0/16 local - 0.0.0.0/0 nat
+
 
 Issues/Problems:
 
@@ -140,16 +150,4 @@ Issues/Problems:
 
 ---
 
-# Directory structure
-```
-/
-├── app/
-│   ├── Dockerfile
-│   ├── .dockerignore
-│   ├── docker-compose.yaml
-│   ├── terraform.tfvars
-│   └── app source code...
-├── .gitignore
-└── README.md
-```
 
