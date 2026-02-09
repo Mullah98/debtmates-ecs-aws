@@ -136,8 +136,8 @@ Route table 1 - 10.0.0.0/16 local - 0.0.0.0/0 igw
 Route table 2 - 10.0.0.0/16 local - 0.0.0.0/0 nat
 
 
-Issues/Problems:
-
+# vpc
+- mentioon 1 total nat rather than per AZ. (lower cost, single AZ failure risk)
 
 
 
