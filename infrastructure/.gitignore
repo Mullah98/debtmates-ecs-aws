@@ -19,6 +19,7 @@ override.tf.json
 # -------- Local variable files --------
 *.tfvars
 *.tfvars.json
+.env
 
 # -------- IDE / editor files (common) --------
 .vscode/
