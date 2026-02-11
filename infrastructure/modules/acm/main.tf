@@ -9,7 +9,7 @@ resource "aws_acm_certificate" "cert" {
 
 ## Creates dns validation records
 
-resource "cloudflare_record" "acm_validation" {
+resource "cloudflare_dns_record" "acm_validation" {
   for_each = {
     for dvo in aws_acm_certificate.cert.domain_validation_options :
     dvo.domain_name => {
@@ -21,8 +21,8 @@ resource "cloudflare_record" "acm_validation" {
 
   zone_id = var.cloudflare_zone_id
   name = each.value.name
+  content = each.value.value
   type = each.value.type
-  value = each.value.value
   ttl = 60
   proxied = false
 }
@@ -33,6 +33,6 @@ resource "aws_acm_certificate_validation" "cert_validation" {
   certificate_arn = aws_acm_certificate.cert.arn
 
   validation_record_fqdns = [
-    for r in cloudflare_record.acm_validation : r.hostname
+    for r in cloudflare_dns_record.acm_validation : r.name
   ]
 }
