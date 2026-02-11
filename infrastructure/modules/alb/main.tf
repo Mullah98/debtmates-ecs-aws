@@ -33,7 +33,7 @@ resource "aws_security_group" "alb_sg" {
 ## Create application load balancer
 
 resource "aws_lb" "alb" {
-  name = "application-load-balancer"  
+  name = "alb"  
   internal = false
   load_balancer_type = "application"
   security_groups = [aws_security_group.alb_sg.id]
@@ -47,7 +47,7 @@ resource "aws_lb" "alb" {
 ## Create target groups
 
 resource "aws_lb_target_group" "alb_tg" {
-  name = "alb-target-group"
+  name = "alb-tg"
   port = 3000
   protocol = "HTTP"
   target_type = "ip"
