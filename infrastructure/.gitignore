@@ -1,10 +1,13 @@
 # -------- Terraform --------
 .terraform/
-.terraform.lock.hcl
-terraform.tfstate
-terraform.tfstate.backup
+
+# State files - with important exception for bootstrap
 *.tfstate
 *.tfstate.*
+
+# Exception: Keep bootstrap state (manages S3 backend)
+!bootstrap/terraform.tfstate
+!bootstrap/terraform.tfstate.backup
 
 # -------- Crash / debug files --------
 crash.log
