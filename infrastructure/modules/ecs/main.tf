@@ -14,7 +14,7 @@ resource "aws_ecs_cluster" "debtmates_cluster" {
 }
 
 resource "aws_cloudwatch_log_group" "cloudwatch_group" {
-  name = "/ecs/${var.cluster_name}/${var.service_name}"
+  name = "/ecs/${var.cluster_name}/${var.ecs_service_name}"
 
   retention_in_days = 7
 
@@ -119,7 +119,7 @@ resource "aws_ecs_task_definition" "debtmates_task_definition" {
 ## Create the ECS 
 
 resource "aws_ecs_service" "debtmates_service" {
-  name = var.service_name
+  name = var.ecs_service_name
   cluster = aws_ecs_cluster.debtmates_cluster.id
   task_definition = aws_ecs_task_definition.debtmates_task_definition.arn
   desired_count = 2
