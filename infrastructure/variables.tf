@@ -16,3 +16,13 @@ variable "subject_alternative_names" {
 variable "cloudflare_zone_id" {
   type = string
 }
+
+variable "app_name" {
+  type = string
+  default = "debtmates"
+}
+
+variable "aws_region" {
+  type = string
+  default = "eu-west-2"
+}
