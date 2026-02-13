@@ -1,9 +1,16 @@
 module "vpc" {
   source = "./modules/vpc"
+
+  availability_zone = var.availability_zone
+  vpc_cidr = var.vpc_cidr
+  public_subnet_cidr = var.public_subnet_cidr
+  private_subnet_cidr = var.private_subnet_cidr
 }
 
 module "ecr" {
   source = "./modules/ecr"
+
+  ecr_name = var.ecr_name
 }
 
 module "acm" {
@@ -34,5 +41,5 @@ module "ecs" {
   cluster_name = var.app_name
   alb_target_group_arn = module.alb.target_group_arn
   ecs_service_name = var.app_name
-  private_subnet_ids = module.vpc.public_subnet_ids
+  private_subnet_ids = module.vpc.private_subnet_ids
 }
