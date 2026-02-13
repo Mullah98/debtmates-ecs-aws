@@ -85,7 +85,7 @@ resource "aws_route_table" "public_route_table" {
   vpc_id = aws_vpc.main.id
 
   route {
-    cidr_block = "var.ipv4_default_route"
+    cidr_block = var.ipv4_default_route
     gateway_id = aws_internet_gateway.igw.id
   }
 
@@ -98,7 +98,7 @@ resource "aws_route_table" "private_route_table_2a" {
   vpc_id = aws_vpc.main.id
 
   route {
-    cidr_block = "var.ipv4_default_route"
+    cidr_block = var.ipv4_default_route
     nat_gateway_id = aws_nat_gateway.nat_1.id
   }
 
