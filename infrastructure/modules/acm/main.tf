@@ -36,3 +36,14 @@ resource "aws_acm_certificate_validation" "cert_validation" {
     for r in cloudflare_dns_record.acm_validation : r.name
   ]
 }
+
+## Point DNS record to ALB
+
+resource "cloudflare_dns_record" "app" {
+  zone_id = var.cloudflare_zone_id
+  name = var.dns_record_name
+  content = var.alb_dns_name
+  type = "CNAME"
+  ttl = 1
+  proxied = false
+}
