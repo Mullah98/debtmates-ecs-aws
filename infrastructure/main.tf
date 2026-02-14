@@ -35,7 +35,7 @@ module "ecs" {
   alb_security_group_id = module.alb.alb_security_group_id
   task_definition_name = var.app_name
   container_name = var.app_name
-  ecr_image_uri = module.ecr.repository_url
+  ecr_image_uri = "${module.ecr.repository_url}:${var.image_tag}"
   vpc_id = module.vpc.vpc_id
   aws_region = var.aws_region
   cluster_name = var.app_name
