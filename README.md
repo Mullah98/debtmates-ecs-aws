@@ -137,17 +137,88 @@ Route table 2 - 10.0.0.0/16 local - 0.0.0.0/0 nat
 
 
 # vpc
-- mentioon 1 total nat rather than per AZ. (lower cost, single AZ failure risk)
+- chose 2 nats instead of 1 for lower chance of risk failures
 
+# ecr
+- include image scanning on push, make tags MUTABLE (push a new image to same tag)
 
+# acm
+- need to add cloudflare provider to use cloudflare resources. otherwise will have to use terraform apply to get the certificate arn.
+- with cloudlfare, use zone-scoped api key instead of global. much safer.
+- created a terraform.tfvars for the api token, in provider, referneced the token. Confirmed with terraform console, var.token, responded with (sensitive value).
+- issue with cloudflare resource names. Had to add versions.tf to acm/, rename resource name and attribute
+- fqdns -> passed in r.name which only gives the subdomain. using hostname instead will give full FQDN (fully qualified dns name)
 
+# alb
+Create resources in order security group -> target group -> load balancer -> listener
 
-
-
-
-
-
+# ecs
+- had to crete an iam role for the ecs tasks
+- for task definition, might need task_role_arn for s3 access
 
 ---
+## terraform apply problems
+- Old cname records existed. duplicate cname record names because of dvo.domain_name instead of dvo.resource_record_name
 
+- ECR repository exists. Need to delete before creating a new one
 
+Issue 4: Duplicate ACM Validation Records (First Attempt)
+Error: failed to make http req - "Identical record already exists" (after cleaning up old records)
+Cause: ACM validation for_each loop was keyed by dvo.domain_name, causing duplicate DNS records when both ibrahimdevops.co.uk and *.ibrahimdevops.co.uk used the same validation record name
+Original code:
+terraformfor_each = {
+  for dvo in aws_acm_certificate.cert.domain_validation_options :
+  dvo.domain_name => {  # ❌ Creates duplicates
+    name = dvo.resource_record_name
+    ...
+  }
+}
+First fix attempt: Changed key to dvo.resource_record_name
+terraformfor_each = {
+  for dvo in aws_acm_certificate.cert.domain_validation_options :
+  dvo.resource_record_name => {  # Better, but...
+    name = dvo.resource_record_name
+    ...
+  }
+}
+
+Issue 5: Duplicate Object Key Error
+Error: Duplicate object key - "Two different items produced the key '_f55cc09be39a79b1fdddaebfd88d132f.ibrahimdevops.co.uk.'"
+Cause: Both domains (ibrahimdevops.co.uk and *.ibrahimdevops.co.uk) generated the exact same validation record, causing a duplicate key in the for_each map
+Fix: Added ellipsis (...) to group duplicates:
+terraformfor_each = {
+  for dvo in aws_acm_certificate.cert.domain_validation_options :
+  dvo.resource_record_name => {
+    name = dvo.resource_record_name
+    type = dvo.resource_record_type
+    value = dvo.resource_record_value
+  }...  # ✅ Groups duplicates into array
+}
+
+Issue 6: Unsupported Attribute - Tuple Access
+Error: Unsupported attribute - "each.value is tuple with 2 elements"
+Cause: The ... ellipsis created an array/tuple of values, so each.value.name no longer worked
+Fix: Accessed the first element of the array:
+terraformname    = each.value[0].name     # ✅ Access first element
+content = each.value[0].value    
+type    = each.value[0].type
+Final working code:
+terraformresource "cloudflare_dns_record" "acm_validation" {
+  for_each = {
+    for dvo in aws_acm_certificate.cert.domain_validation_options :
+    dvo.resource_record_name => {
+      name  = dvo.resource_record_name
+      type  = dvo.resource_record_type
+      value = dvo.resource_record_value
+    }...  # Handle duplicates
+  }
+
+  zone_id = var.cloudflare_zone_id
+  name    = each.value[0].name      # Access first element
+  content = each.value[0].value
+  type    = each.value[0].type
+  ttl     = 60
+  proxied = false
+}
+
+---
