@@ -19,6 +19,8 @@ module "acm" {
   cloudflare_zone_id = var.cloudflare_zone_id
   domain_name = var.domain_name
   subject_alternative_names = var.subject_alternative_names
+  dns_record_name = var.dns_record_name
+  alb_dns_name = module.alb.alb_dns_name
 }
 
 module "alb" {

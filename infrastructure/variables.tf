@@ -57,6 +57,12 @@ variable "subject_alternative_names" {
   default = ["*.ibrahimdevops.co.uk"]
 }
 
+variable "dns_record_name" {
+  description = "Subdomain name for the DNS record"
+  type = string
+  default = "debtmates"
+}
+
 ## ECS Module variables
 
 variable "app_name" {
