@@ -44,6 +44,22 @@ npm run dev
 Open http://localhost:5173 in your browser.
 ```
 
+# Production build & server
+1. `Build the app:`
+```bash
+npm run build
+```
+
+2. `Start the server:`
+```bash
+node server.js
+```
+
+3. `View the production app:`
+```bash
+http://localhost:3000
+```
+
 # Test Accounts
 If you'd like to explore the app quickly, you can use these test accounts:
 - **Email:** owen_hall@testing.com | **Password:** Test123
