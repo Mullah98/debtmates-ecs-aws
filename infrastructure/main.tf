@@ -52,4 +52,6 @@ module "iam" {
   ecr_repository_arn = module.ecr.repository_arn
   github_org = var.github_org
   github_repo = var.github_repo
+  s3_bucket_arn = var.s3_bucket_arn
+  dynamodb_table_arn = var.dynamodb_table_arn
 }
