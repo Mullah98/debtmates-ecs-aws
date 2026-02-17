@@ -82,3 +82,15 @@ variable "image_tag" {
   type = string
   default = "latest"
 }
+
+## IAM Module variables
+
+variable "github_org" {
+  description = "Name of GitHub Org"
+  type = string
+}
+
+variable "github_repo" {
+  description = "Name of GitHub Repository"
+  type = string
+}

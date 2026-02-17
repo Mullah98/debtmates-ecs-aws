@@ -45,3 +45,11 @@ module "ecs" {
   ecs_service_name = var.app_name
   private_subnet_ids = module.vpc.private_subnet_ids
 }
+
+module "iam" {
+  source = "./modules/iam"
+
+  ecr_repository_arn = module.ecr.repository_arn
+  github_org = var.github_org
+  github_repo = var.github_repo
+}

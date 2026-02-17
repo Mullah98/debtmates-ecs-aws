@@ -70,3 +70,10 @@ output "health_check_url" {
   description = "Health check endpoint for the application"
   value = "https://${var.dns_record_name}.${var.domain_name}/health"
 }
+
+## IAM Outputs
+
+output "iam_role_arn" {
+  description = "ARN of the GitHub Actions IAM role"
+  value = module.iam.iam_role_arn
+}
