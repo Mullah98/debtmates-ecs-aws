@@ -13,6 +13,11 @@ output "dynamodb_table_name" {
   value = aws_dynamodb_table.tf_locks.id
 }
 
+output "dynamodb_table_arn" {
+  description = "ARN of the DynamoDB table"
+  value = aws_dynamodb_table.tf_locks.arn
+}
+
 output "backend_config" {
   description = "Backend configuration to use in main Terraform code"
   value = <<-EOT
