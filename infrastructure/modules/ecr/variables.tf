@@ -1,4 +1,4 @@
 variable "ecr_name" {
-  type = string
+  type        = string
   description = "ECR Repository name"
 }

@@ -1,8 +1,8 @@
 ## Req an acm certificate
 
 resource "aws_acm_certificate" "cert" {
-  domain_name = var.domain_name
-  validation_method = "DNS"
+  domain_name               = var.domain_name
+  validation_method         = "DNS"
   subject_alternative_names = var.subject_alternative_names
 }
 
@@ -13,17 +13,17 @@ resource "cloudflare_dns_record" "acm_validation" {
   for_each = {
     for dvo in aws_acm_certificate.cert.domain_validation_options :
     dvo.domain_name => {
-        name = dvo.resource_record_name
-        type = dvo.resource_record_type
-        value = dvo.resource_record_value
+      name  = dvo.resource_record_name
+      type  = dvo.resource_record_type
+      value = dvo.resource_record_value
     }
   }
 
   zone_id = var.cloudflare_zone_id
-  name = each.value.name
+  name    = each.value.name
   content = each.value.value
-  type = each.value.type
-  ttl = 60
+  type    = each.value.type
+  ttl     = 60
   proxied = false
 }
 
@@ -41,10 +41,10 @@ resource "aws_acm_certificate_validation" "cert_validation" {
 
 resource "cloudflare_dns_record" "root" {
   zone_id = var.cloudflare_zone_id
-  name = "@"
+  name    = "@"
   content = var.alb_dns_name
-  type = "CNAME"
-  ttl = 1
+  type    = "CNAME"
+  ttl     = 1
   proxied = false
 }
 
@@ -52,9 +52,9 @@ resource "cloudflare_dns_record" "root" {
 
 resource "cloudflare_dns_record" "app" {
   zone_id = var.cloudflare_zone_id
-  name = var.dns_record_name
+  name    = var.dns_record_name
   content = var.alb_dns_name
-  type = "CNAME"
-  ttl = 1
+  type    = "CNAME"
+  ttl     = 1
   proxied = false
 }
