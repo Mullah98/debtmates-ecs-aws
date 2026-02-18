@@ -222,3 +222,9 @@ terraformresource "cloudflare_dns_record" "acm_validation" {
 }
 
 ---
+
+## CICD
+
+1. First pipeline. Had to set up OIDC and create IAm module to create least privelge policies.
+extras: Include messages if login failures or images not pushed to ecr
+
