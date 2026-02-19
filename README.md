@@ -228,3 +228,9 @@ terraformresource "cloudflare_dns_record" "acm_validation" {
 1. First pipeline. Had to set up OIDC and create IAm module to create least privelge policies.
 extras: Include messages if login failures or images not pushed to ecr
 
+2. 2nd pipeline
+  - errors when using tflint. Had to fmt code before pushing and install tflint properly with terraform_version
+
+  - 2nd job, terraform plan fail. error:acquiring state lock. add concurrency. 2 pipelines are running at the same time and try to grab dynamdo lock. concurrency prevents this by allowing one pipeline to run at a time.
+
+  - 2nd job. using tfplan in 2nd job to guaruntee exact changes reviewed during plan is what gets applied. Without tfplan, the plan could potentially change and terraform would apply it. 
