@@ -132,5 +132,5 @@ jobs:
           TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           TF_VAR_cloudflare_zone_id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
           TF_VAR_dynamodb_table_arn: ${{ secrets.DYNAMODB_TABLE_ARN }}
-          TF_VAR_s3_bucket.arn: ${{ secrets.S3_BUCKET_ARN }}         
+          TF_VAR_s3_bucket_arn: ${{ secrets.S3_BUCKET_ARN }}         
         run: terraform apply -auto-approve

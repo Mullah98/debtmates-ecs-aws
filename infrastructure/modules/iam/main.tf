@@ -118,6 +118,7 @@ resource "aws_iam_role_policy" "github_actions_policy" {
           "iam:DeleteRolePolicy",
           "iam:GetRolePolicy",
           "iam:PassRole",
+          "iam:ListRolePolicies",
           "iam:ListAttachedRolePolicies",
           "iam:AttachRolePolicy",
           "iam:DetachRolePolicy",
