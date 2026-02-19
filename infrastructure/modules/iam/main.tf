@@ -42,6 +42,11 @@ resource "aws_iam_role_policy" "github_actions_policy" {
         Resource = "*"
       },
       {
+        Sid    = "ECRCreate",
+        Effect = "Allow",
+        Action = ["ecr:CreateRepository"]
+      },
+      {
         Sid    = "ECRAccess",
         Effect = "Allow",
         Action = [
@@ -51,7 +56,12 @@ resource "aws_iam_role_policy" "github_actions_policy" {
           "ecr:UploadLayerPart",
           "ecr:CompleteLayerUpload",
           "ecr:GetDownloadUrlForLayer",
-          "ecr:BatchGetImage"
+          "ecr:BatchGetImage",
+          "ecr:DescribeRepositories",
+          "ecr:DeleteRepository",
+          "ecr:ListTagsForResource",
+          "ecr:TagResource",
+          "ecr:UntagResource"
         ],
         Resource = var.ecr_repository_arn
       },
@@ -109,7 +119,11 @@ resource "aws_iam_role_policy" "github_actions_policy" {
           "iam:PassRole",
           "iam:ListAttachedRolePolicies",
           "iam:AttachRolePolicy",
-          "iam:DetachRolePolicy"
+          "iam:DetachRolePolicy",
+          "iam:GetOpenIDConnectProvider",
+          "iam:CreateOpenIDConnectProvider",
+          "iam:DeleteOpenIDConnectProvider",
+          "iam:TagOpenIDConnectProvider"
         ],
         Resource = "*"
       },
