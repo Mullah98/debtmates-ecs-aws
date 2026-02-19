@@ -42,9 +42,10 @@ resource "aws_iam_role_policy" "github_actions_policy" {
         Resource = "*"
       },
       {
-        Sid    = "ECRCreate",
-        Effect = "Allow",
-        Action = ["ecr:CreateRepository"]
+        Sid      = "ECRCreate",
+        Effect   = "Allow",
+        Action   = ["ecr:CreateRepository"],
+        Resource = "*"
       },
       {
         Sid    = "ECRAccess",
