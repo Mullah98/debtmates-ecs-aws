@@ -88,13 +88,13 @@ variable "image_tag" {
 variable "github_org" {
   description = "Name of GitHub Org"
   type        = string
-  default = "Mullah98"
+  default     = "Mullah98"
 }
 
 variable "github_repo" {
   description = "Name of GitHub Repository"
   type        = string
-  default = "debtmates-ecs-aws"
+  default     = "debtmates-ecs-aws"
 }
 
 variable "s3_bucket_arn" {
