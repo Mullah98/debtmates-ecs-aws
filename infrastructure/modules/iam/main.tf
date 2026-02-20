@@ -61,6 +61,7 @@ resource "aws_iam_role_policy" "github_actions_policy" {
           "ecr:DescribeRepositories",
           "ecr:DeleteRepository",
           "ecr:ListTagsForResource",
+          "ecr:ListTagsForCertificate",
           "ecr:TagResource",
           "ecr:UntagResource"
         ],
@@ -114,6 +115,7 @@ resource "aws_iam_role_policy" "github_actions_policy" {
           "iam:CreateRole",
           "iam:DeleteRole",
           "iam:UpdateRole",
+          "iam:TagRole",
           "iam:PutRolePolicy",
           "iam:DeleteRolePolicy",
           "iam:GetRolePolicy",
