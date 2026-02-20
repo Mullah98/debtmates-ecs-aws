@@ -34,16 +34,17 @@ module "alb" {
 module "ecs" {
   source = "./modules/ecs"
 
-  alb_security_group_id = module.alb.alb_security_group_id
-  task_definition_name  = var.app_name
-  container_name        = var.app_name
-  ecr_image_uri         = "${module.ecr.repository_url}:${var.image_tag}"
-  vpc_id                = module.vpc.vpc_id
-  aws_region            = var.aws_region
-  cluster_name          = var.app_name
-  alb_target_group_arn  = module.alb.target_group_arn
-  ecs_service_name      = var.app_name
-  private_subnet_ids    = module.vpc.private_subnet_ids
+  alb_security_group_id  = module.alb.alb_security_group_id
+  task_definition_name   = var.app_name
+  container_name         = var.app_name
+  ecr_image_uri          = "${module.ecr.repository_url}:${var.image_tag}"
+  vpc_id                 = module.vpc.vpc_id
+  aws_region             = var.aws_region
+  cluster_name           = var.app_name
+  alb_target_group_arn   = module.alb.target_group_arn
+  alb_https_listener_arn = module.alb.https_listener_arn
+  ecs_service_name       = var.app_name
+  private_subnet_ids     = module.vpc.private_subnet_ids
 }
 
 module "iam" {

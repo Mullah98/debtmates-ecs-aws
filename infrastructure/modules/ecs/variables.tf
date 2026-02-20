@@ -43,6 +43,10 @@ variable "alb_target_group_arn" {
   type        = string
 }
 
+variable "alb_https_listener_arn" {
+  description = "ARN of the HTTPS listener"
+}
+
 variable "container_name" {
   description = "Name of the container defined in the ECS task definition"
   type        = string
