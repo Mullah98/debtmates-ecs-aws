@@ -123,7 +123,8 @@ resource "aws_iam_role_policy" "github_actions_policy" {
           "acm:DeleteCertificate",
           "acm:ListCertificates",
           "acm:AddTagsToCertificate",
-          "acm:RemoveTagsFromCertificate"
+          "acm:RemoveTagsFromCertificate",
+          "acm:ListTagsForCertificate"
         ]
         Resource = "*"
       },
