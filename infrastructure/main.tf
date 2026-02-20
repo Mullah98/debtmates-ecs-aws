@@ -45,6 +45,8 @@ module "ecs" {
   alb_https_listener_arn = module.alb.https_listener_arn
   ecs_service_name       = var.app_name
   private_subnet_ids     = module.vpc.private_subnet_ids
+
+  depends_on = [module.alb]
 }
 
 module "iam" {
