@@ -33,83 +33,103 @@ resource "aws_iam_role_policy" "github_actions_policy" {
   role = aws_iam_role.github_actions_role.id
 
   policy = jsonencode({
-    Version = "2012-10-17",
+    Version = "2012-10-17"
     Statement = [
       {
-        Sid      = "ECRAuthToken",
-        Effect   = "Allow",
-        Action   = ["ecr:GetAuthorizationToken"],
-        Resource = "*"
-      },
-      {
-        Sid      = "ECRCreate",
-        Effect   = "Allow",
-        Action   = ["ecr:CreateRepository"],
-        Resource = "*"
-      },
-      {
-        Sid    = "ECRAccess",
-        Effect = "Allow",
-        Action = [
-          "ecr:BatchCheckLayerAvailability",
-          "ecr:PutImage",
-          "ecr:InitiateLayerUpload",
-          "ecr:UploadLayerPart",
-          "ecr:CompleteLayerUpload",
-          "ecr:GetDownloadUrlForLayer",
-          "ecr:BatchGetImage",
-          "ecr:DescribeRepositories",
-          "ecr:DeleteRepository",
-          "ecr:ListTagsForResource",
-          "ecr:ListTagsForCertificate",
-          "ecr:TagResource",
-          "ecr:UntagResource"
-        ],
-        Resource = var.ecr_repository_arn
-      },
-      {
-        Sid      = "S3ListBucket",
-        Effect   = "Allow",
-        Action   = ["s3:ListBucket"],
+        Sid      = "TFStateListBucket"
+        Effect   = "Allow"
+        Action   = ["s3:ListBucket"]
         Resource = var.s3_bucket_arn
       },
       {
-        Sid    = "S3Access",
-        Effect = "Allow",
-        Action = [
-          "s3:GetObject",
-          "s3:PutObject",
-          "s3:DeleteObject"
-        ],
+        Sid      = "TFStateObjects"
+        Effect   = "Allow"
+        Action   = ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"]
         Resource = "${var.s3_bucket_arn}/*"
       },
       {
-        Sid    = "DynamoDBAccess",
-        Effect = "Allow",
+        Sid    = "TFStateLockTable"
+        Effect = "Allow"
         Action = [
           "dynamodb:GetItem",
           "dynamodb:PutItem",
           "dynamodb:DeleteItem",
           "dynamodb:UpdateItem",
           "dynamodb:DescribeTable"
-        ],
+        ]
         Resource = var.dynamodb_table_arn
       },
       {
-        Sid      = "ECSAccess",
-        Effect   = "Allow",
-        Action   = ["ecs:*", "logs:*"],
+        Sid      = "ECRAuthToken"
+        Effect   = "Allow"
+        Action   = ["ecr:GetAuthorizationToken"]
         Resource = "*"
       },
       {
-        Sid      = "EC2FullAccess",
-        Effect   = "Allow",
-        Action   = ["ec2:*"],
+        Sid      = "ECRCreateRepository"
+        Effect   = "Allow"
+        Action   = ["ecr:CreateRepository"]
         Resource = "*"
       },
       {
-        Sid    = "IAMAccess",
-        Effect = "Allow",
+        Sid    = "ECRRepositoryAccess"
+        Effect = "Allow"
+        Action = [
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:CompleteLayerUpload",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage",
+          "ecr:InitiateLayerUpload",
+          "ecr:PutImage",
+          "ecr:UploadLayerPart",
+          "ecr:DescribeRepositories",
+          "ecr:ListTagsForResource",
+          "ecr:TagResource",
+          "ecr:UntagResource",
+          "ecr:DeleteRepository"
+        ]
+        Resource = var.ecr_repository_arn
+      },
+      {
+        Sid      = "EC2Access"
+        Effect   = "Allow"
+        Action   = ["ec2:*"]
+        Resource = "*"
+      },
+      {
+        Sid      = "ELBAccess"
+        Effect   = "Allow"
+        Action   = ["elasticloadbalancing:*"]
+        Resource = "*"
+      },
+      {
+        Sid      = "ECSAccess"
+        Effect   = "Allow"
+        Action   = ["ecs:*"]
+        Resource = "*"
+      },
+      {
+        Sid      = "LogsAccess"
+        Effect   = "Allow"
+        Action   = ["logs:*"]
+        Resource = "*"
+      },
+      {
+        Sid    = "ACMAccess"
+        Effect = "Allow"
+        Action = [
+          "acm:RequestCertificate",
+          "acm:DescribeCertificate",
+          "acm:DeleteCertificate",
+          "acm:ListCertificates",
+          "acm:AddTagsToCertificate",
+          "acm:RemoveTagsFromCertificate"
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "IAMAccess"
+        Effect = "Allow"
         Action = [
           "iam:GetRole",
           "iam:CreateRole",
@@ -119,7 +139,6 @@ resource "aws_iam_role_policy" "github_actions_policy" {
           "iam:PutRolePolicy",
           "iam:DeleteRolePolicy",
           "iam:GetRolePolicy",
-          "iam:PassRole",
           "iam:ListRolePolicies",
           "iam:ListAttachedRolePolicies",
           "iam:AttachRolePolicy",
@@ -127,27 +146,9 @@ resource "aws_iam_role_policy" "github_actions_policy" {
           "iam:GetOpenIDConnectProvider",
           "iam:CreateOpenIDConnectProvider",
           "iam:DeleteOpenIDConnectProvider",
-          "iam:TagOpenIDConnectProvider"
-        ],
-        Resource = "*"
-      },
-      {
-        Sid    = "ACMAccess",
-        Effect = "Allow",
-        Action = [
-          "acm:RequestCertificate",
-          "acm:DescribeCertificate",
-          "acm:DeleteCertificate",
-          "acm:ListCertificates",
-          "acm:AddTagsToCertificate",
-          "acm:RemoveTagsFromCertificate"
-        ],
-        Resource = "*"
-      },
-      {
-        Sid      = "ELBAccess",
-        Effect   = "Allow",
-        Action   = ["elasticloadbalancing:*"],
+          "iam:TagOpenIDConnectProvider",
+          "iam:PassRole"
+        ]
         Resource = "*"
       }
     ]
