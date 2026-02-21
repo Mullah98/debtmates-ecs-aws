@@ -13,7 +13,7 @@ resource "aws_acm_certificate" "cert" {
 locals {
   validation_options = {
     for dvo in aws_acm_certificate.cert.domain_validation_options :
-    dvo.domain_name => dvo
+    dvo.resource_record_name => dvo
   }
 }
 
