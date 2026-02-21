@@ -3,6 +3,7 @@ name: Build And Push Docker Image to ECR
 on:
   push:
     branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -36,3 +37,4 @@ jobs:
           docker compose -f app/docker-compose.yaml build
           docker tag debtmates:latest $REGISTRY/$REPOSITORY:$IMAGE_TAG
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          echo "Image URI: $REGISTRY/$REPOSITORY:$IMAGE_TAG"
