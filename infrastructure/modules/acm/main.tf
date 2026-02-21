@@ -54,7 +54,7 @@ resource "cloudflare_dns_record" "root" {
   ttl     = 1
   proxied = false
 
-  depends_on = [ aws_acm_certificate_validation.cert_validation ]
+  depends_on = [aws_acm_certificate_validation.cert_validation]
 }
 
 ## DNS record to point subdomain to ALB
@@ -67,5 +67,5 @@ resource "cloudflare_dns_record" "app" {
   ttl     = 1
   proxied = false
 
-  depends_on = [ aws_acm_certificate_validation.cert_validation ]
+  depends_on = [aws_acm_certificate_validation.cert_validation]
 }
