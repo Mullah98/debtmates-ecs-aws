@@ -53,6 +53,8 @@ resource "cloudflare_dns_record" "root" {
   type    = "CNAME"
   ttl     = 1
   proxied = false
+
+  depends_on = [ aws_acm_certificate_validation.cert_validation ]
 }
 
 ## DNS record to point subdomain to ALB
@@ -64,4 +66,6 @@ resource "cloudflare_dns_record" "app" {
   type    = "CNAME"
   ttl     = 1
   proxied = false
+
+  depends_on = [ aws_acm_certificate_validation.cert_validation ]
 }
