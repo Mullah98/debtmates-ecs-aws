@@ -25,7 +25,7 @@ resource "cloudflare_dns_record" "acm_validation" {
 
   zone_id = var.cloudflare_zone_id
   name    = each.value.name
-  content = each.value.value
+  content = each.value.content
   type    = each.value.type
   ttl     = 60
   proxied = false
