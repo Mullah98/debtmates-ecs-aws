@@ -4,6 +4,10 @@ resource "aws_acm_certificate" "cert" {
   domain_name               = var.domain_name
   validation_method         = "DNS"
   subject_alternative_names = var.subject_alternative_names
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 
@@ -33,7 +37,7 @@ resource "aws_acm_certificate_validation" "cert_validation" {
   certificate_arn = aws_acm_certificate.cert.arn
 
   validation_record_fqdns = [
-    for r in cloudflare_dns_record.acm_validation : r.hostname
+    for r in cloudflacloudflare_dns_record.acm_validation : r.hostname
   ]
 }
 
