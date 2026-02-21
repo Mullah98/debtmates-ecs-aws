@@ -10,22 +10,22 @@ resource "aws_acm_certificate" "cert" {
   }
 }
 
-locals {
-  validation_options = {
-    for dvo in aws_acm_certificate.cert.domain_validation_options :
-    dvo.resource_record_name => dvo
-  }
-}
-
 ## Creates dns validation records
 
 resource "cloudflare_dns_record" "acm_validation" {
-  for_each = local.validation_options
+  for_each = {
+    for dvo in aws_acm_certificate.cert.domain_validation_options :
+    dvo.resource_record_name => {
+      name  = dvo.resource_record_name
+      type  = dvo.resource_record_type
+      value = dvo.resource_record_value
+    }...
+  }
 
   zone_id = var.cloudflare_zone_id
-  name    = each.value.resource_record_name
-  type    = each.value.resource_record_type
-  content = each.value.resource_record_value
+  name    = each.value[0].name
+  type    = each.value[0].type
+  content = each.value[0].value
   ttl     = 60
   proxied = false
 }
@@ -35,7 +35,9 @@ resource "cloudflare_dns_record" "acm_validation" {
 resource "aws_acm_certificate_validation" "cert_validation" {
   certificate_arn = aws_acm_certificate.cert.arn
 
-  validation_record_fqdns = [for record in cloudflare_dns_record.acm_validation : record.name]
+  validation_record_fqdns = [
+    for r in cloudflare_dns_record.acm_validation : r.name
+  ]
 
   depends_on = [cloudflare_dns_record.acm_validation]
 }
