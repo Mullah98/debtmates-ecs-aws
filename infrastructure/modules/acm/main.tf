@@ -19,7 +19,7 @@ resource "cloudflare_dns_record" "acm_validation" {
       name  = dvo.resource_record_name
       type  = dvo.resource_record_type
       value = dvo.resource_record_value
-    }...
+    }
   }
 
   zone_id = var.cloudflare_zone_id
