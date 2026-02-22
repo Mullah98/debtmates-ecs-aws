@@ -14,13 +14,13 @@ resource "aws_acm_certificate" "cert" {
 
 resource "cloudflare_dns_record" "acm_validation" {
   for_each = {
-    "cert_validation" = aws_acm_certificate.cert.domain_validation_options[0]
+    "validation_record" = tolist(aws_acm_certificate.cert.domain_validation_options)[0]
   }
 
   zone_id = var.cloudflare_zone_id
-  name    = each.value.name
-  type    = each.value.type
-  content = each.value.value
+  name    = each.value.resource_record_name
+  type    = each.value.resource_record_type
+  content = each.value.resource_record_value
   ttl     = 60
   proxied = false
 }
