@@ -39,5 +39,7 @@ jobs:
         run: |
           docker compose -f app/docker-compose.yaml build
           docker tag debtmates:latest $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          docker tag debtmates:latest $REGISTRY/$REPOSITORY:latest
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
-          echo "Image URI: $REGISTRY/$REPOSITORY:$IMAGE_TAG"
+          docker push $REGISTRY/$REPOSITORY:latest          
+          echo "Image URI: $REGISTRY/$REPOSITORY:$IMAGE_TAG & $REGISTRY/$REPOSITORY:latest"
