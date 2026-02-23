@@ -5,6 +5,7 @@ on:
     workflows: ['Terraform Deploy']
     types:
       - completed
+  workflow_dispatch:
 
 jobs:
   health-check-1:
