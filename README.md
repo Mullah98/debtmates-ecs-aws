@@ -234,3 +234,11 @@ extras: Include messages if login failures or images not pushed to ecr
   - 2nd job, terraform plan fail. error:acquiring state lock. add concurrency. 2 pipelines are running at the same time and try to grab dynamdo lock. concurrency prevents this by allowing one pipeline to run at a time.
 
   - 2nd job. using tfplan in 2nd job to guaruntee exact changes reviewed during plan is what gets applied. Without tfplan, the plan could potentially change and terraform would apply it. 
+
+  - 2nd job. missing a lot of permission. changed the iam module permission policy to be more broad but still least privelege
+
+  - 2nd job. 'target group does not have associated load balancer'. ecs tries to attach alb target group before https listener exists. 
+
+  - 2nd job. A lot of trouble with duplicate dns records. reconfigured dns record loop multiple times, nothing working. instead, converted dns records into list and picked the first index so it doesnt get confused with my domain and subdomain (thought ibrahimdevops + *.ibrahimdevops is exactly the same).
+
+  3. third pipeline
