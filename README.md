@@ -241,4 +241,7 @@ extras: Include messages if login failures or images not pushed to ecr
 
   - 2nd job. A lot of trouble with duplicate dns records. reconfigured dns record loop multiple times, nothing working. instead, converted dns records into list and picked the first index so it doesnt get confused with my domain and subdomain (thought ibrahimdevops + *.ibrahimdevops is exactly the same).
 
-  3. third pipeline
+  3. third pipeline.
+    - add workflow_run so pipeline runs once 2nd pipeline completes
+    - set euo -pipefail -> makes shell script fail fast and safely
+    - jq -e .status == 'ok' -> checks json field of health check

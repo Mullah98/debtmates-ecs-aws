@@ -8,38 +8,28 @@ on:
   workflow_dispatch:
 
 jobs:
-  health-check-1:
-    name: Health check on primary domain
-    if: github.event.workflow_run.conclusion == 'success'
+  health-check:
+    name: Health check on url
+    if: |
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') ||
+      (github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        url:
+          - https://ibrahimdevops.co.uk/health
+          - https://debtmates.ibrahimdevops.co.uk/health
+
     steps:
       - name: Run health check on url
         run: |
-          set -e
-          RESPONSE=$(curl --silent --output /dev/null --write-out "%{http_code}" \
-          https://ibrahimdevops.co.uk/health)
-          if [ $RESPONSE != "200" ]; then
-            echo 'health check failed'
-            exit 1
-          else
-            echo 'health check successful'
-          fi
+          set -euo pipefall
 
-  health-check-2:
-    name: Health check on subdomain
-    if: github.event.workflow_run.conclusion == 'success'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Run health check on url
-        run: |
-          set -e
-          RESPONSE=$(curl --silent --output /dev/null --write-out "%{http_code}" \
-          https://debtmates.ibrahimdevops.co.uk/health)
-          if [ $RESPONSE != "200" ]; then
-            echo 'health check failed'
-            exit 1
-          else
-            echo 'health check successful'
-          fi
+          response=$(curl --silent --max-time 10 --retry 5 --retry-delay 2 --retry-all-errors \
+          ${{ matrix.url }})
 
-      
+          echo "Response: $response"
+
+          echo "$response" | jq -e '.status == "ok"' > /dev/null \
+            && echo "✅ status is ok" \
+            || (echo "❌ status is not ok"; echo "Response body: $response"; exit 1)
