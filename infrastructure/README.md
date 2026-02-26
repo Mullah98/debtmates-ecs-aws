@@ -12,8 +12,8 @@
 ### ECS Cluster
 ![ecs-cluster](../assets/images/ecs-cluster.png)
 
-### ECS Task Logs
-![ecs-task](../assets/images/ecs-task-logs.png)
+### ECS Tasks Running
+![ecs-task](../assets/videos/ecs-tasks.gif)
 
 ### ECS Cloudwatch Logs
 ![cloudwatch-logs](../assets/images/cloudwatch-logs.png)
