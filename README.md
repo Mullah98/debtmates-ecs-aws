@@ -1,247 +1,251 @@
-# debtmates-ecs-aws
+# DebtMates - Full-Stack ECS Deployment on AWS
 
+Production-grade full-stack application containerised with **Docker** and deployed to **AWS ECS Fargate**. Infrastructure provisioned with **Terraform**, automated deployments via **GitHub Actions CI/CD pipeline**, and served securely over HTTPS with a custom domain.
 
-1. Dockerise app
-- had issues with npm install stage. Fixed by removing important files from dockerignore
+## Table of Contents
 
-- issue with env variables. Created docker compose and put in values
-- same issue, instead of passing the vars during runetime, it needs them at build time. 
+- [Overview](#overview)
+- [Tech Stack](#tech-stack)
+- [Engineering Highlights](#engineering-highlights)
+- [Architecture](#architecture)
+- [Infrastructure Setup](#infrastructure-setup)
+- [CI/CD Pipeline](#cicd-pipeline)
+- [Cost Considerations](#cost-considerations)
+- [Project Structure](#project-structure)
+- [Running Locally](#running-locally)
+- [Reflections](#reflections)
 
-screenshots:
-    - shows dockerfile
-    - shows healthroute status ok
-    - 
+## Overview
 
-2. Clickops
-- issue when running a new task. Added variables to secret manager and policy to IAM user to be able to read variables but still not working. Realised I ran docker build instead of docker compose when pushing it to ECR
+**What this project demonstrates**
 
-- The ECS task was registered to the target group but remained **unhealthy (“request timed out”)**.
+- Designing and deploying production-ready AWS infrastructure using Terraform
+- Building a secure containerised application with Docker
+- Implementing CI/CD pipelines with GitHub Actions
+- Deploying scalable services using ECS Fargate behind an ALB
+- Managing DNS and HTTPS with Cloudflare and ACM
+- Applying security best practices (private subnets, IAM least privilege, HTTPS)
 
-### **Root causes**
+## Live Demo
 
-There were two issues:
+| Environment| URL |
+|------------|-----|
+| Production | https://debtmates.ibrahimdevops.co.uk |
 
-1. **Wrong security group rule on the ECS tasks**
+Demo walkthrough:
 
-* Initially, the task security group only allowed **TCP 80**, but your app actually runs on **port 3000**.
-* Because of this, the ALB could not reach the container → health checks timed out.
+![debtmates-demo](./assets/videos/debtmates-demo.gif)
 
-2. **Port mismatch in thinking**
+## Tech Stack
 
-* You were opening **80 on the task**, but the ALB talks to the container on **3000**, not 80.
+| Category | Technology |
+|---|---|
+| Frontend | Vite, React |
+| Backend | Node.js, Express |
+| Database & Auth | Supabase |
+| Infrastructure | AWS ECS Fargate, ALB, ECR, VPC, NAT Gateway, ACM, CloudWatch, S3, DynamoDB |
+| IaC | Terraform |
+| CI/CD | GitHub Actions |
+| Containerisation | Docker |
+| DNS | Cloudflare |
+
+## Engineering Highlights
+
+- Reduced Docker image size from **219MB to 179MB** using a multi-stage build (**18% reduction**)
+- End-to-end deployment from commit to live ECS service completes in **under 10 minutes** via CI/CD
+- ECS tasks deployed in private subnets with no public IPs — only reachable via the ALB
+- All traffic encrypted in transit via ACM-issued SSL certificate
+- Least-privilege IAM roles scoped specifically to ECS task execution, following AWS security best practices
+- Reduced manual deployment steps from ~15+ AWS Console actions to a single `git push` via CI/CD automation
+
+## Architecture
+
+![ECS-AWS-diagram](./assets/images/ecs-aws-diagram.png)
+
+### Request Flow
+
+1. User accesses the application via custom domain
+2. DNS (Cloudflare) resolves to AWS Application Load Balancer
+3. Application Load Balancer terminates HTTPS using ACM certificate
+4. Traffic is routed to ECS service target group
+5. ECS Fargate task serves the application
+6. Application communicates with Supabase for database and authentication
+
+## Infrastructure Setup
+
+All infrastructure is provisioned with Terraform and organised into reusable modules. The following AWS resources are created:
+
+| Resource | Description |
+|---|---|
+| **VPC** | Custom VPC with public and private subnets across eu-west-2a and eu-west-2b |
+| **NAT Gateway** | Allows ECS tasks in private subnets to make outbound internet requests |
+| **Security Groups** | ALB SG (80/443 public), ECS SG (port 3000 from ALB only) |
+| **ECR** | Container registry for the Docker image |
+| **ECS Cluster** | Fargate cluster running the application as a single container service |
+| **ALB** | Internet-facing load balancer with HTTP → HTTPS redirect |
+| **ACM** | SSL certificate for the custom domain (DNS validated) |
+| **IAM** | Least-privilege task execution role for ECS |
+| **CloudWatch** | Log group `/ecs/app` for container logs |
+| **S3 + DynamoDB** | Remote Terraform state storage and state locking |
 
 ---
 
-# ✅ How You Solved It
+### Security
 
-You fixed it by:
+- ECS tasks run in **private subnets** with no public IPs
+- Only ALB security group can access ECS service
+- HTTPS enforced using ACM certificate
+- IAM roles to follow **least privilege principles**
+- Secrets stored in GitHub Action secrets
+- Terraform state secured with S3 + DynamoDB locking
 
-1. Creating a **separate ECS Task Security Group** and adding:
+---
 
-   * **Inbound: TCP 3000 from the ALB security group only**
+### Scaling & Availability
 
-2. Keeping the ALB security group public with:
+- Deployed across **2 Availability Zones**
+- ECS service can be scaled horizontally by increasing task count
+- ALB distributes traffic across tasks
+- Stateless container design allows easy scaling
 
-   * TCP 80 and 443 from `0.0.0.0/0`
+> Screenshots of AWS resources created with Terraform [here](./infrastructure/README.md)
 
-3. Ensuring your app listens on:
+
+## CI/CD Pipeline
+
+### 1. `docker-build-push-ecr.yaml` — Build & Push
+Builds the Docker image and pushes it to Amazon ECR.
+
+![docker-build-pipeline](./assets/images/docker-ecr-pipeline.png)
+
+---
+
+### 2. `terraform-deploy.yaml` — Infrastructure Provisioning
+Bootstraps the Terraform backend (S3 + DynamoDB) and applies the necessary IAM policies before running `terraform fmt` (formatting), `terraform validate` (validation) and `tflint` (linting). Then executes `terraform init`, `terraform plan` and `terraform apply` to provision or update infrastructure. Remote state is stored in S3 with DynamoDB state locking.
+
+![terraform-pipeline](./assets/videos/tf-apply.gif)
+
+---
+
+### 3. `post-deploy-check.yaml` — Health Check
+Only runs if the Terraform Deploy workflow completes with a success conclusion — skipped entirely on failure or cancellation. Hits the /health endpoint on both domains in parallel using a matrix strategy, with up to 5 retries and a 10 second timeout per request. Validates that the JSON response contains `"status": "ok"`, failing the pipeline if it doesn't.
+![post-deploy-pipeline](./assets/videos/post-deploy.gif)
+
+---
+
+### Required GitHub Secrets
+
+| Secret | Description |
+|---|---|
+| `AWS_ACCESS_KEY_ID` | IAM user access key |
+| `AWS_SECRET_ACCESS_KEY` | IAM user secret key |
+| `AWS_REGION` | e.g. `eu-west-2` |
+| `ECR_REGISTRY` | ECR registry URI |
+| `ECR_REPOSITORY` | ECR repository name |
+| `ECS_CLUSTER` | ECS cluster name |
+| `ECS_SERVICE` | ECS service name |
+| `VITE_SUPABASE_URL` | Supabase project URL |
+| `VITE_SUPABASE_ANON_KEY` | Supabase anon key |
+
+## Cost Considerations
+
+- Fargate chosen for simplicity over EC2
+- NAT Gateway is the main cost driver
+- Single service and minimal compute used to keep costs low
+
+## Project Structure
 
 ```
-0.0.0.0:3000
+├── app/                        # Full-stack application
+│   ├── Dockerfile
+│   ├── docker-compose.yaml
+│   └── .dockerignore
+├── infra/                      # Terraform infrastructure
+│   ├── modules/
+│   │   ├── vpc/
+│   │   ├── acm/
+│   │   ├── ecr/
+│   │   ├── ecs/
+│   │   ├── alb/
+│   │   └── iam/
+│   ├── bootstrap/              # S3 + DynamoDB remote state backend
+│   ├── main.tf
+│   ├── variables.tf
+│   ├── outputs.tf
+│   ├── providers.tf
+│   ├── backend.tf
+│   └── terraform.tfvars
+├── .github/
+│   └── workflows/
+│       ├── docker-build-push-ecr.yaml    # Build and push image to ECR
+│       ├── terraform-deploy.yaml       # Terraform provisioning
+│       └── post-deploy-check.yaml    # Post-deploy health check
+└── README.md
 ```
 
-(not localhost)
+## Running Locally
 
-Once that was done:
-
-* The target in the target group turned **Healthy**
-* The ALB could successfully route traffic to ECS.
-
-
-You then:
-
-* Used an existing **ACM certificate** that included:
-
-```
-*.ibrahimdevops.co.uk
+### Development
+```bash
+git clone https://github.com/Mullah98/DebtMates.git
+npm install
 ```
 
-* Added an **HTTPS:443 listener** on the ALB forwarding to `debtmates-tg`
-* Changed **HTTP:80** to **redirect to HTTPS 443**
-
-Result:
-
-* HTTPS works
-* HTTP automatically redirects to HTTPS.
-
-
----
-## Terraform
-
-1) Region + naming
-AWS region: eu-west-2
-Names you want to reuse:
-Cluster: <name>
-Service: <name>
-ALB: debtmates-alb
-Target group: debtmates-tg
-
-2) Networking
-VPC ID (default VPC) and subnet IDs used by:
-ALB subnets (public; you used 2a/2b/2c)
-ECS task subnets (which ones you selected)
-Whether tasks have public IP enabled or not
-
-3) Ports and health checks
-Container port: 3000
-Target group:
-Target type: ip
-Protocol: HTTP
-Port: 3000
-Health check path: /health
-
-4) Security groups (critical)
-Write down the exact rules:
-ALB SG inbound: 80/443 from 0.0.0.0/0
-Task SG inbound: 3000 from ALB SG
-(These become aws_security_group_rule blocks.)
-
-5) ECS task definition settings
-CPU / Memory values used
-Image URI (ECR repo + tag)
-Environment variables (if any)
-CloudWatch log group name (if created)
-
-6) ALB listeners
-Listener 80: redirect → HTTPS 443 (301)
-Listener 443: forward to target group + ACM cert ARN
-
-7) ACM certificate
-The certificate ARN you attached (for *.ibrahimdevops.co.uk)
-In Terraform you’ll likely reference it via a data "aws_acm_certificate" lookup or hardcode ARN.
-
-8) DNS
-Decide what Terraform will manage:
-Route 53 record you created: debtmates.ibrahimdevops.co.uk A Alias → ALB
-Hosted zone ID in Route 53 (if you plan to manage it)
+Create a `.env` file with your Supabase credentials:
+```bash
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+```bash
+npm run dev
+# → http://localhost:5173
+```
 
 ---
 
-VPC - cidr block 10.0.0.0/16
-public sub - cidr block 10.0.0.0/24 - eu-west-2a
-public sub 2 - cidr block 10.0.3.0/24 - eu-west-2b
-private sub - cidr block 10.0.1.0/24 - eu-west-2a
-private sub 2 - cidr block 10.0.2.0/24 - eu-west-2b
-Route table 1 - 10.0.0.0/16 local - 0.0.0.0/0 igw
-Route table 2 - 10.0.0.0/16 local - 0.0.0.0/0 nat
+### Production build
+```bash
+npm run build
+node server.js
+# → http://localhost:3000
+```
 
+### With Docker
+```bash
+docker compose up --build
+# → http://localhost:3000
+```
 
-# vpc
-- chose 2 nats instead of 1 for lower chance of risk failures
+> For full setup instructions see the [app README](./app/README.md).
 
-# ecr
-- include image scanning on push, make tags MUTABLE (push a new image to same tag)
+## Reflections
 
-# acm
-- need to add cloudflare provider to use cloudflare resources. otherwise will have to use terraform apply to get the certificate arn.
-- with cloudlfare, use zone-scoped api key instead of global. much safer.
-- created a terraform.tfvars for the api token, in provider, referneced the token. Confirmed with terraform console, var.token, responded with (sensitive value).
-- issue with cloudflare resource names. Had to add versions.tf to acm/, rename resource name and attribute
-- fqdns -> passed in r.name which only gives the subdomain. using hostname instead will give full FQDN (fully qualified dns name)
+### Trade-offs
 
-# alb
-Create resources in order security group -> target group -> load balancer -> listener
-
-# ecs
-- had to crete an iam role for the ecs tasks
-- for task definition, might need task_role_arn for s3 access
-
----
-## terraform apply problems
-- Old cname records existed. duplicate cname record names because of dvo.domain_name instead of dvo.resource_record_name
-
-- ECR repository exists. Need to delete before creating a new one
-
-Issue 4: Duplicate ACM Validation Records (First Attempt)
-Error: failed to make http req - "Identical record already exists" (after cleaning up old records)
-Cause: ACM validation for_each loop was keyed by dvo.domain_name, causing duplicate DNS records when both ibrahimdevops.co.uk and *.ibrahimdevops.co.uk used the same validation record name
-Original code:
-terraformfor_each = {
-  for dvo in aws_acm_certificate.cert.domain_validation_options :
-  dvo.domain_name => {  # ❌ Creates duplicates
-    name = dvo.resource_record_name
-    ...
-  }
-}
-First fix attempt: Changed key to dvo.resource_record_name
-terraformfor_each = {
-  for dvo in aws_acm_certificate.cert.domain_validation_options :
-  dvo.resource_record_name => {  # Better, but...
-    name = dvo.resource_record_name
-    ...
-  }
-}
-
-Issue 5: Duplicate Object Key Error
-Error: Duplicate object key - "Two different items produced the key '_f55cc09be39a79b1fdddaebfd88d132f.ibrahimdevops.co.uk.'"
-Cause: Both domains (ibrahimdevops.co.uk and *.ibrahimdevops.co.uk) generated the exact same validation record, causing a duplicate key in the for_each map
-Fix: Added ellipsis (...) to group duplicates:
-terraformfor_each = {
-  for dvo in aws_acm_certificate.cert.domain_validation_options :
-  dvo.resource_record_name => {
-    name = dvo.resource_record_name
-    type = dvo.resource_record_type
-    value = dvo.resource_record_value
-  }...  # ✅ Groups duplicates into array
-}
-
-Issue 6: Unsupported Attribute - Tuple Access
-Error: Unsupported attribute - "each.value is tuple with 2 elements"
-Cause: The ... ellipsis created an array/tuple of values, so each.value.name no longer worked
-Fix: Accessed the first element of the array:
-terraformname    = each.value[0].name     # ✅ Access first element
-content = each.value[0].value    
-type    = each.value[0].type
-Final working code:
-terraformresource "cloudflare_dns_record" "acm_validation" {
-  for_each = {
-    for dvo in aws_acm_certificate.cert.domain_validation_options :
-    dvo.resource_record_name => {
-      name  = dvo.resource_record_name
-      type  = dvo.resource_record_type
-      value = dvo.resource_record_value
-    }...  # Handle duplicates
-  }
-
-  zone_id = var.cloudflare_zone_id
-  name    = each.value[0].name      # Access first element
-  content = each.value[0].value
-  type    = each.value[0].type
-  ttl     = 60
-  proxied = false
-}
+- **Fargate over EC2** - eliminates server management overhead at the cost of higher compute pricing. Right choice for a project of this scale.
+- **Two Availability Zones** - adds resilience but increases cost, particularly with NAT Gateways provisioned per AZ.
+- **NAT Gateway with Elastic IP** - keeps ECS tasks private with no public IPs while allowing outbound traffic to external services.
+- **Remote state with S3 + DynamoDB** - storing Terraform state remotely rather than locally ensures the state is never lost and prevents concurrent runs from corrupting it via DynamoDB state locking.
 
 ---
 
-## CICD
+### Challenges
 
-1. First pipeline. Had to set up OIDC and create IAm module to create least privelge policies.
-extras: Include messages if login failures or images not pushed to ecr
+- **Docker & Environment Variables** — Vite bundles env vars at build time, not runtime. Resolved by injecting Supabase credentials during the Docker build via Docker Compose.
 
-2. 2nd pipeline
-  - errors when using tflint. Had to fmt code before pushing and install tflint properly with terraform_version
+- **ECS Health Checks Timing Out** — ECS tasks were marked unhealthy due to a security group misconfiguration. The task SG only allowed TCP 80, but the app listens on port 3000. Fixed by restricting inbound TCP 3000 to the ALB security group only.
 
-  - 2nd job, terraform plan fail. error:acquiring state lock. add concurrency. 2 pipelines are running at the same time and try to grab dynamdo lock. concurrency prevents this by allowing one pipeline to run at a time.
+- **ACM Certificate Validation with Cloudflare** — Both `ibrahimdevops.co.uk` and `*.ibrahimdevops.co.uk` share the same ACM validation record, causing duplicate CNAME errors in Cloudflare. Resolved by using the `...` ellipsis operator in the Terraform `for_each` loop to deduplicate validation records.
 
-  - 2nd job. using tfplan in 2nd job to guaruntee exact changes reviewed during plan is what gets applied. Without tfplan, the plan could potentially change and terraform would apply it. 
+- **Terraform State Lock Contention** — Concurrent pipeline runs caused DynamoDB lock conflicts. Fixed by adding a `concurrency` block to the Terraform workflow.
 
-  - 2nd job. missing a lot of permission. changed the iam module permission policy to be more broad but still least privelege
+- **Plan/Apply Consistency** — Persisted the Terraform plan as a `tfplan` artifact to guarantee the apply step executes exactly what was reviewed in the plan.
 
-  - 2nd job. 'target group does not have associated load balancer'. ecs tries to attach alb target group before https listener exists. 
+- **IAM Permissions** — Iteratively scoped permissions for the ECS task execution role and CI/CD OIDC role as Terraform surfaced missing permissions across modules.
 
-  - 2nd job. A lot of trouble with duplicate dns records. reconfigured dns record loop multiple times, nothing working. instead, converted dns records into list and picked the first index so it doesnt get confused with my domain and subdomain (thought ibrahimdevops + *.ibrahimdevops is exactly the same).
+### Future Improvements
 
-  3. third pipeline.
-    - add workflow_run so pipeline runs once 2nd pipeline completes
-    - set euo -pipefail -> makes shell script fail fast and safely
-    - jq -e .status == 'ok' -> checks json field of health check
+- Add ECS autoscaling policies based on CPU/Memory
+- Move secrets to AWS Secrets Manager for runtime injection
+- Replace NAT Gateway with VPC endpoints to reduce costs
+- Implement blue/green deployments for zero downtime releases
