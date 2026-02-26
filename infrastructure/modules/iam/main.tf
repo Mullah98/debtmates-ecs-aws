@@ -1,5 +1,3 @@
-## Create IAM OIDC identity provider to assume IAM roles in AWS via ferated auth.
-
 resource "aws_iam_openid_connect_provider" "github" {
   url             = "https://token.actions.githubusercontent.com"
   client_id_list  = ["sts.amazonaws.com"]

@@ -1,5 +1,3 @@
-## Create VPC
-
 resource "aws_vpc" "main" {
   cidr_block           = var.vpc_cidr
   enable_dns_hostnames = true
@@ -10,13 +8,9 @@ resource "aws_vpc" "main" {
   }
 }
 
-## Create Internet gateway
-
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
 }
-
-## Create 2 public & 2 private subnets
 
 resource "aws_subnet" "public_subnet_2a" {
   vpc_id                  = aws_vpc.main.id
@@ -44,8 +38,6 @@ resource "aws_subnet" "private_subnet_2b" {
   availability_zone = var.availability_zone[1]
 }
 
-## Create NAT gateway
-
 resource "aws_nat_gateway" "nat_1" {
   allocation_id = aws_eip.eip1.id
   subnet_id     = aws_subnet.public_subnet_2a.id
@@ -54,7 +46,7 @@ resource "aws_nat_gateway" "nat_1" {
     Name = "public-subnet-2a-nat"
   }
 
-  depends_on = [aws_internet_gateway.igw] ## ??
+  depends_on = [aws_internet_gateway.igw]
 }
 
 resource "aws_nat_gateway" "nat_2" {
@@ -65,11 +57,8 @@ resource "aws_nat_gateway" "nat_2" {
     Name = "public-subnet-2b-nat"
   }
 
-  depends_on = [aws_internet_gateway.igw] ## ??
+  depends_on = [aws_internet_gateway.igw]
 }
-
-
-## Create Elastic IP
 
 resource "aws_eip" "eip1" {
   domain = "vpc"
@@ -78,8 +67,6 @@ resource "aws_eip" "eip1" {
 resource "aws_eip" "eip2" {
   domain = "vpc"
 }
-
-## Create route tables
 
 resource "aws_route_table" "public_route_table" {
   vpc_id = aws_vpc.main.id
@@ -119,8 +106,6 @@ resource "aws_route_table" "private_route_table_2b" {
     Name = "private-route-table-2b"
   }
 }
-
-## Create associations
 
 resource "aws_route_table_association" "public_2a_route_association" {
   subnet_id      = aws_subnet.public_subnet_2a.id

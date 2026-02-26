@@ -1,5 +1,3 @@
-## Req an acm certificate
-
 resource "aws_acm_certificate" "cert" {
   domain_name               = var.domain_name
   validation_method         = "DNS"
@@ -9,8 +7,6 @@ resource "aws_acm_certificate" "cert" {
     create_before_destroy = true
   }
 }
-
-## Creates dns validation records
 
 resource "cloudflare_dns_record" "acm_validation" {
   for_each = {
@@ -25,8 +21,6 @@ resource "cloudflare_dns_record" "acm_validation" {
   proxied = false
 }
 
-## Ask acm to validate and wait until cert is issued
-
 resource "aws_acm_certificate_validation" "cert_validation" {
   certificate_arn = aws_acm_certificate.cert.arn
 
@@ -36,8 +30,6 @@ resource "aws_acm_certificate_validation" "cert_validation" {
 
   depends_on = [cloudflare_dns_record.acm_validation]
 }
-
-## DNS record to point domain to ALB
 
 resource "cloudflare_dns_record" "root" {
   zone_id = var.cloudflare_zone_id
@@ -49,8 +41,6 @@ resource "cloudflare_dns_record" "root" {
 
   depends_on = [aws_acm_certificate_validation.cert_validation]
 }
-
-## DNS record to point subdomain to ALB
 
 resource "cloudflare_dns_record" "app" {
   zone_id = var.cloudflare_zone_id

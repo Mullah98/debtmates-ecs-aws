@@ -1,5 +1,3 @@
-## Create ecs cluster
-
 resource "aws_ecs_cluster" "debtmates_cluster" {
   name = var.cluster_name
 
@@ -22,8 +20,6 @@ resource "aws_cloudwatch_log_group" "cloudwatch_group" {
     Name = "${var.cluster_name}-logs"
   }
 }
-
-## Create task security group
 
 resource "aws_security_group" "ecs_task_sg" {
   name        = "${var.cluster_name}-ecs-tasks-sg"
@@ -49,8 +45,6 @@ resource "aws_security_group" "ecs_task_sg" {
   }
 }
 
-## Create IAM role for the ECSTaskExecutionRolePolicy
-
 resource "aws_iam_role" "ecs_execution_role" {
   name = "${var.cluster_name}-ecs-execution-role"
 
@@ -74,8 +68,6 @@ resource "aws_iam_role_policy_attachment" "ecs_task_policy" {
   role       = aws_iam_role.ecs_execution_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
-
-## Create task definitions
 
 resource "aws_ecs_task_definition" "debtmates_task_definition" {
   family                   = "${var.task_definition_name}-task"
@@ -115,8 +107,6 @@ resource "aws_ecs_task_definition" "debtmates_task_definition" {
 
   }])
 }
-
-## Create the ECS 
 
 resource "aws_ecs_service" "debtmates_service" {
   name            = var.ecs_service_name

@@ -1,5 +1,3 @@
-## S3 bucket for terraform state
-
 resource "aws_s3_bucket" "tf_state" {
   bucket = "${var.project_name}-${var.environment}-tf-state"
 
@@ -10,8 +8,6 @@ resource "aws_s3_bucket" "tf_state" {
   }
 }
 
-## Enable versioning to keep state file history
-
 resource "aws_s3_bucket_versioning" "tf_state" {
   bucket = aws_s3_bucket.tf_state.id
 
@@ -19,8 +15,6 @@ resource "aws_s3_bucket_versioning" "tf_state" {
     status = "Enabled"
   }
 }
-
-## Enable encryption at rest
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "tf_state" {
   bucket = aws_s3_bucket.tf_state.id
@@ -32,8 +26,6 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "tf_state" {
   }
 }
 
-## Block public access
-
 resource "aws_s3_bucket_public_access_block" "tf_state" {
   bucket = aws_s3_bucket.tf_state.id
 
@@ -42,8 +34,6 @@ resource "aws_s3_bucket_public_access_block" "tf_state" {
   ignore_public_acls      = true
   restrict_public_buckets = true
 }
-
-## DynamoDB table for state locking
 
 resource "aws_dynamodb_table" "tf_locks" {
   name         = "${var.project_name}-${var.environment}-tf-locks"

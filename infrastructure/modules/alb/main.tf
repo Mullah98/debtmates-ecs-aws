@@ -1,5 +1,3 @@
-## Create load balancer security group with 2 inbound listeners (port 80 & port 443). Allow all outbound traffic
-
 resource "aws_security_group" "alb_sg" {
   name   = "alb-security-group"
   vpc_id = var.vpc_id
@@ -30,8 +28,6 @@ resource "aws_security_group" "alb_sg" {
   }
 }
 
-## Create application load balancer
-
 resource "aws_lb" "alb" {
   name               = "alb"
   internal           = false
@@ -43,8 +39,6 @@ resource "aws_lb" "alb" {
     Name = "alb"
   }
 }
-
-## Create target groups
 
 resource "aws_lb_target_group" "alb_tg" {
   name        = "alb-tg"
@@ -58,8 +52,6 @@ resource "aws_lb_target_group" "alb_tg" {
     matcher = "200"
   }
 }
-
-## Create http listener
 
 resource "aws_lb_listener" "http_listener" {
   load_balancer_arn = aws_lb.alb.arn
@@ -76,8 +68,6 @@ resource "aws_lb_listener" "http_listener" {
     }
   }
 }
-
-## Create https listener
 
 resource "aws_lb_listener" "https_listener" {
   load_balancer_arn = aws_lb.alb.arn
