@@ -1,4 +1,4 @@
-# DebtMates - Full-Stack ECS Deployment on AWS
+## DebtMates – Production AWS Deployment on ECS Fargate with Terraform & CI/CD
 
 Production-grade full-stack application containerised with **Docker** and deployed to **AWS ECS Fargate**. Infrastructure provisioned with **Terraform**, automated deployments via **GitHub Actions CI/CD pipeline**, and served securely over HTTPS with a custom domain.
 
