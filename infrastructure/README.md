@@ -1,4 +1,4 @@
-## Infrastructure (Terraform)
+## Infrastructure as Code (Terraform)
 
 ### Infrastructure Layout
 
