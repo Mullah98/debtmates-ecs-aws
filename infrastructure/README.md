@@ -16,7 +16,7 @@ infrastructure/
 ├── main.tf
 ├── outputs.tf
 ├── variables.tf
-└── tfvars.tf.gitignore
+└── tfvars.tf
 └── .gitignore
 ```
 
