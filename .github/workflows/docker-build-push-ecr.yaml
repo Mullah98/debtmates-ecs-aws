@@ -43,3 +43,18 @@ jobs:
           docker tag debtmates:latest $REGISTRY/$REPOSITORY:$IMAGE_TAG
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
           echo "Image URI: $REGISTRY/$REPOSITORY:$IMAGE_TAG"
+
+      - name: Trigger Terraform Pipeline With New Image Tag
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'terraform-deploy.yaml',
+              ref: 'main',
+              inputs: {
+                image_tag: context.sha
+                }
+              })
