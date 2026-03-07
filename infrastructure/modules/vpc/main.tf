@@ -12,35 +12,46 @@ resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
 }
 
-resource "aws_subnet" "public_subnet_2a" {
+resource "aws_subnet" "public_subnets" {
+  for_each = {
+    for idx, az in var.availability_zone :
+    az => {
+      cidr = var.public_subnet_cidr[idx]
+      az   = az
+    }
+  }
+
   vpc_id                  = aws_vpc.main.id
-  cidr_block              = var.public_subnet_cidr[0]
-  availability_zone       = var.availability_zone[0]
-  map_public_ip_on_launch = true ## ??
+  cidr_block              = each.value.cidr
+  availability_zone       = each.value.az
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "public-${each.value.az}"
+  }
 }
 
-resource "aws_subnet" "private_subnet_2a" {
+resource "aws_subnet" "private_subnets" {
+  for_each = {
+    for idx, az in var.availability_zone :
+    az => {
+      cidr = var.private_subnet_cidr[idx]
+      az   = az
+    }
+  }
+
   vpc_id            = aws_vpc.main.id
-  cidr_block        = var.private_subnet_cidr[0]
-  availability_zone = var.availability_zone[0]
-}
+  cidr_block        = each.value.cidr
+  availability_zone = each.value.az
 
-resource "aws_subnet" "public_subnet_2b" {
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = var.public_subnet_cidr[1]
-  availability_zone       = var.availability_zone[1]
-  map_public_ip_on_launch = true ## ??
-}
-
-resource "aws_subnet" "private_subnet_2b" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = var.private_subnet_cidr[1]
-  availability_zone = var.availability_zone[1]
+  tags = {
+    Name = "private-${each.value.az}"
+  }
 }
 
 resource "aws_nat_gateway" "nat_1" {
   allocation_id = aws_eip.eip1.id
-  subnet_id     = aws_subnet.public_subnet_2a.id
+  subnet_id     = aws_subnet.public_subnets[var.availability_zone[0]].id
 
   tags = {
     Name = "public-subnet-2a-nat"
@@ -51,7 +62,7 @@ resource "aws_nat_gateway" "nat_1" {
 
 resource "aws_nat_gateway" "nat_2" {
   allocation_id = aws_eip.eip2.id
-  subnet_id     = aws_subnet.public_subnet_2b.id
+  subnet_id     = aws_subnet.public_subnets[var.availability_zone[1]].id
 
   tags = {
     Name = "public-subnet-2b-nat"
@@ -108,21 +119,21 @@ resource "aws_route_table" "private_route_table_2b" {
 }
 
 resource "aws_route_table_association" "public_2a_route_association" {
-  subnet_id      = aws_subnet.public_subnet_2a.id
+  subnet_id      = aws_subnet.public_subnets[var.availability_zone[0]].id
   route_table_id = aws_route_table.public_route_table.id
 }
 
 resource "aws_route_table_association" "public_2b_route_association" {
-  subnet_id      = aws_subnet.public_subnet_2b.id
+  subnet_id      = aws_subnet.public_subnets[var.availability_zone[1]].id
   route_table_id = aws_route_table.public_route_table.id
 }
 
 resource "aws_route_table_association" "private_2a_route_association" {
-  subnet_id      = aws_subnet.private_subnet_2a.id
+  subnet_id      = aws_subnet.private_subnets[var.availability_zone[0]].id
   route_table_id = aws_route_table.private_route_table_2a.id
 }
 
 resource "aws_route_table_association" "private_2b_route_association" {
-  subnet_id      = aws_subnet.private_subnet_2b.id
+  subnet_id      = aws_subnet.private_subnets[var.availability_zone[1]].id
   route_table_id = aws_route_table.private_route_table_2b.id
 }

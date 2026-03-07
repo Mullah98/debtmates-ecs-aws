@@ -21,5 +21,4 @@ variable "private_subnet_cidr" {
 variable "ipv4_default_route" {
   type        = string
   description = "IPv4 default route used for internet-bound traffic in route tables"
-  default     = "0.0.0.0/0"
 }

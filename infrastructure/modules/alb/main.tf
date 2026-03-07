@@ -2,29 +2,45 @@ resource "aws_security_group" "alb_sg" {
   name   = "alb-security-group"
   vpc_id = var.vpc_id
 
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
   tags = {
     Name = "alb-sg"
+  }
+}
+
+resource "aws_vpc_security_group_ingress_rule" "ingress_http" {
+  security_group_id = aws_security_group.alb_sg.id
+
+  cidr_ipv4   = "0.0.0.0/0"
+  from_port   = 80
+  ip_protocol = "tcp"
+  to_port     = 80
+
+  tags = {
+    Name = "inbound_http"
+  }
+}
+
+resource "aws_vpc_security_group_ingress_rule" "ingress_https" {
+  security_group_id = aws_security_group.alb_sg.id
+
+  cidr_ipv4   = "0.0.0.0/0"
+  from_port   = 443
+  ip_protocol = "tcp"
+  to_port     = 443
+
+  tags = {
+    Name = "inbound_https"
+  }
+}
+
+resource "aws_vpc_security_group_egress_rule" "outbound_all" {
+  security_group_id = aws_security_group.alb_sg.id
+
+  cidr_ipv4   = "0.0.0.0/0"
+  ip_protocol = "-1"
+
+  tags = {
+    Name = "outbound_all"
   }
 }
 

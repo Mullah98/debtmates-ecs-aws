@@ -5,6 +5,7 @@ module "vpc" {
   vpc_cidr            = var.vpc_cidr
   public_subnet_cidr  = var.public_subnet_cidr
   private_subnet_cidr = var.private_subnet_cidr
+  ipv4_default_route  = var.ipv4_default_route
 }
 
 module "ecr" {
@@ -36,6 +37,8 @@ module "ecs" {
 
   alb_security_group_id  = module.alb.alb_security_group_id
   task_definition_name   = var.app_name
+  task_cpu               = var.task_cpu
+  task_memory            = var.task_memory
   container_name         = var.app_name
   ecr_image_uri          = "${module.ecr.repository_url}:${var.image_tag}"
   vpc_id                 = module.vpc.vpc_id

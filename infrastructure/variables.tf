@@ -24,6 +24,12 @@ variable "private_subnet_cidr" {
   default     = ["10.0.1.0/24", "10.0.3.0/24"]
 }
 
+variable "ipv4_default_route" {
+  type        = string
+  description = "IPv4 default route used for internet-bound traffic in route tables"
+  default     = "0.0.0.0/0"
+}
+
 ## ECR Module variables
 
 variable "ecr_name" {
@@ -83,6 +89,17 @@ variable "image_tag" {
   default     = "latest"
 }
 
+variable "task_cpu" {
+  description = "CPU configuration for the ECS task"
+  type        = number
+  default     = 256
+}
+
+variable "task_memory" {
+  description = "Memory configuration for the ECS task"
+  type        = number
+  default     = 512
+}
 ## IAM Module variables
 
 variable "github_org" {

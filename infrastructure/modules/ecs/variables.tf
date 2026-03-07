@@ -23,6 +23,16 @@ variable "task_definition_name" {
   type        = string
 }
 
+variable "task_cpu" {
+  description = "CPU configuration for the ECS task"
+  type        = number
+}
+
+variable "task_memory" {
+  description = "Memory configuration for the ECS task"
+  type        = number
+}
+
 variable "ecr_image_uri" {
   description = "Image URI from the ECR"
   type        = string
