@@ -1,19 +1,15 @@
 # -------- Terraform --------
 .terraform/
 
-# State files - with important exception for bootstrap
+# State files
 *.tfstate
 *.tfstate.*
-
-# Exception: Keep bootstrap state (manages S3 backend)
-!bootstrap/terraform.tfstate
-!bootstrap/terraform.tfstate.backup
 
 # -------- Crash / debug files --------
 crash.log
 crash.*.log
 
-# -------- CLI override files (optional, local only) --------
+# -------- CLI override files --------
 override.tf
 override.tf.json
 *_override.tf
@@ -24,7 +20,7 @@ override.tf.json
 *.tfvars.json
 .env
 
-# -------- IDE / editor files (common) --------
+# -------- IDE / editor files --------
 .vscode/
 .idea/
 .DS_Store
