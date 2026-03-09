@@ -74,6 +74,6 @@ output "health_check_url" {
 ## IAM Outputs
 
 output "iam_role_arn" {
-  description = "ARN of the GitHub Actions IAM role"
+  description = "ARN of the IAM role"
   value       = module.iam.iam_role_arn
 }
