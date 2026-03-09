@@ -60,4 +60,5 @@ module "iam" {
   github_repo        = var.github_repo
   s3_bucket_arn      = var.s3_bucket_arn
   dynamodb_table_arn = var.dynamodb_table_arn
+  aws_account_id     = var.aws_account_id
 }
