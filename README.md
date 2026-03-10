@@ -60,7 +60,8 @@ Demo walkthrough:
 
 ## Architecture
 
-![ECS-AWS-diagram](./assets/images/ecs-aws-diagram.png)
+![ECS-AWS-diagram](./assets/images/debtmates-ecs-aws.png)
+![ECS-AWS-diagram-animated](./assets/images/debtmates-ecs-aws.gif)
 
 ### Request Flow
 
