@@ -2,29 +2,15 @@
 
 Production-grade full-stack application containerised with **Docker** and deployed to **AWS ECS Fargate**. Infrastructure provisioned with **Terraform**, automated deployments via **GitHub Actions CI/CD pipeline**, and served securely over HTTPS with a custom domain.
 
-## Table of Contents
-
-- [Overview](#overview)
-- [Tech Stack](#tech-stack)
-- [Engineering Highlights](#engineering-highlights)
-- [Architecture](#architecture)
-- [Infrastructure Setup](#infrastructure-setup)
-- [CI/CD Pipeline](#cicd-pipeline)
-- [Cost Considerations](#cost-considerations)
-- [Project Structure](#project-structure)
-- [Running Locally](#running-locally)
-- [Reflections](#reflections)
 
 ## Overview
 
-**What this project demonstrates**
-
-- Designing and deploying production-ready AWS infrastructure using Terraform
-- Building a secure containerised application with Docker
-- Implementing CI/CD pipelines with GitHub Actions
-- Deploying scalable services using ECS Fargate behind an ALB
-- Managing DNS and HTTPS with Cloudflare and ACM
-- Applying security best practices (private subnets, IAM least privilege, HTTPS)
+**Key Highlights**
+- CI/CD pipeline: commit → production in **<10 minutes**
+- Secure architecture: **private subnets, ALB-only access, HTTPS enforced**
+- Infrastructure as Code using **modular Terraform**
+- Optimised Docker image (**↓18% size reduction**)
+- Zero manual deployment steps — fully automated
 
 ## Live Demo
 
@@ -49,15 +35,6 @@ Demo walkthrough:
 | Containerisation | Docker |
 | DNS | Cloudflare |
 
-## Engineering Highlights
-
-- Reduced Docker image size from **219MB to 179MB** using a multi-stage build (**18% reduction**)
-- End-to-end deployment from commit to live ECS service completes in **under 10 minutes** via CI/CD
-- ECS tasks deployed in private subnets with no public IPs — only reachable via the ALB
-- All traffic encrypted in transit via ACM-issued SSL certificate
-- Least-privilege IAM roles scoped specifically to ECS task execution, following AWS security best practices
-- Reduced manual deployment steps from ~15+ AWS Console actions to a single `git push` via CI/CD automation
-
 ## Architecture
 
 ![ECS-AWS-diagram](./assets/images/debtmates-ecs-aws.png)
@@ -71,6 +48,15 @@ Demo walkthrough:
 4. Traffic is routed to ECS service target group
 5. ECS Fargate task serves the application
 6. Application communicates with Supabase for database and authentication
+
+## Engineering Highlights
+
+- Reduced Docker image size from **219MB to 179MB** using a multi-stage build (**18% reduction**)
+- End-to-end deployment from commit to live ECS service completes in **under 10 minutes** via CI/CD
+- ECS tasks deployed in private subnets with no public IPs — only reachable via the ALB
+- All traffic encrypted in transit via ACM-issued SSL certificate
+- Least-privilege IAM roles scoped specifically to ECS task execution, following AWS security best practices
+- Reduced manual deployment steps from ~15+ AWS Console actions to a single `git push` via CI/CD automation
 
 ## Infrastructure Setup
 
@@ -111,6 +97,11 @@ All infrastructure is provisioned with Terraform and organised into reusable mod
 
 > Screenshots of AWS resources created with Terraform [here](./infrastructure/README.md)
 
+## Cost Considerations
+
+- Fargate chosen for simplicity over EC2
+- NAT Gateway is the main cost driver
+- Single service and minimal compute used to keep costs low
 
 ## CI/CD Pipeline
 
@@ -148,11 +139,6 @@ Only runs if the Terraform Deploy workflow completes with a success conclusion �
 | `VITE_SUPABASE_URL` | Supabase project URL |
 | `VITE_SUPABASE_ANON_KEY` | Supabase anon key |
 
-## Cost Considerations
-
-- Fargate chosen for simplicity over EC2
-- NAT Gateway is the main cost driver
-- Single service and minimal compute used to keep costs low
 
 ## Project Structure
 
