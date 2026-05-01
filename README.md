@@ -2,8 +2,28 @@
 
 Production-grade full-stack application containerised with **Docker** and deployed to **AWS ECS Fargate**. Infrastructure provisioned with **Terraform**, automated deployments via **GitHub Actions CI/CD pipeline**, and served securely over HTTPS with a custom domain.
 
+## Tech Stack
 
-## Overview
+- **AWS (ECR, ALB, VPC, IAM, ECS)** – used to provision and run the core infrastructure and services
+- **Terraform** – provisions and manages AWS infrastructure as code
+- **Docker** – containerises the app to ensure consistent environments across development and production
+- **GitHub Actions (CI/CD)** – automates build, test, and deployment pipelines
+- **CloudWatch** – handles logging and monitoring for the deployed services
+- **Cloudflare** – manages DNS and adds an extra layer of security and performance (CDN, SSL)
+
+## Architecture
+
+![ECS-AWS-diagram](./assets/images/debtmates-ecs-aws.png)
+![ECS-AWS-diagram-animated](./assets/images/debtmates-ecs-aws.gif)
+
+### Request Flow
+
+1. User accesses the application via custom domain
+2. DNS (Cloudflare) resolves to AWS Application Load Balancer
+3. Application Load Balancer terminates HTTPS using ACM certificate
+4. Traffic is routed to ECS service target group
+5. ECS Fargate task serves the application
+6. Application communicates with Supabase for database and authentication
 
 **Key Highlights**
 - CI/CD pipeline: commit → production in **<10 minutes**
@@ -22,32 +42,6 @@ Demo walkthrough:
 
 ![debtmates-demo](./assets/videos/debtmates-demo.gif)
 
-## Tech Stack
-
-| Category | Technology |
-|---|---|
-| Frontend | Vite, React |
-| Backend | Node.js, Express |
-| Database & Auth | Supabase |
-| Infrastructure | AWS ECS Fargate, ALB, ECR, VPC, NAT Gateway, ACM, CloudWatch, S3, DynamoDB |
-| IaC | Terraform |
-| CI/CD | GitHub Actions |
-| Containerisation | Docker |
-| DNS | Cloudflare |
-
-## Architecture
-
-![ECS-AWS-diagram](./assets/images/debtmates-ecs-aws.png)
-![ECS-AWS-diagram-animated](./assets/images/debtmates-ecs-aws.gif)
-
-### Request Flow
-
-1. User accesses the application via custom domain
-2. DNS (Cloudflare) resolves to AWS Application Load Balancer
-3. Application Load Balancer terminates HTTPS using ACM certificate
-4. Traffic is routed to ECS service target group
-5. ECS Fargate task serves the application
-6. Application communicates with Supabase for database and authentication
 
 ## Engineering Highlights
 
